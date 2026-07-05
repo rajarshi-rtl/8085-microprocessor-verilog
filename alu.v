@@ -15,16 +15,17 @@ module alu(
 
 // Defining local paramters for the ALU operations
 localparam ADD = 5'd0, ADC = 5'd1, SUB = 5'd2, SBB = 5'd3, INR = 5'd4, DCR = 5'd5;
-localparam ANA = 5'd6, ORA = 5'd7, XRA = 5'd8, CMP - 5'd9;
+localparam ANA = 5'd6, ORA = 5'd7, XRA = 5'd8, CMP = 5'd9;
 localparam RLC = 5'd10, RRC = 5'd11, RAL = 5'd12, RAR = 5'd13;
-localparam CMA = 5'd14, CMC = 5'd15, STC = 6'd16;
+localparam CMA = 5'd14, CMC = 5'd15, STC = 5'd16;
 
 reg sign, zero, carry, aux_carry, parity_even;
+reg [3:0] temp_nibble;
 
 always@(*) begin
 	result = 8'h00;
 	flags = 8'h00;
-	reg [3:0] temp_nibble;
+	carry = 0; aux_carry = 0;
 
 	case(alu_op)
 		// Arithmetic Operations
@@ -47,12 +48,10 @@ always@(*) begin
 		INR: begin
 			result = operand1 + 1'b1;
 			{aux_carry, temp_nibble} = operand1[3:0] + 1'b1;
-			carry = carry_in;
 		end
 		DCR: begin
                         result = operand1 - 1'b1;
                         {aux_carry, temp_nibble} = operand1[3:0] - 1'b1;
-			carry = carry_in;
 		end
 
 		// Logical Operations
@@ -69,7 +68,7 @@ always@(*) begin
 			carry = 1'b0; aux_carry = 1'b0;
 		end
 		CMP: begin
-			{carry,result} = operand1 - operand2;
+			{carry,result} = operand1 - operand2; //Result = 0 (Z flag set to 1) Carry = 1 (operand1 <operand2)
 			{aux_carry, temp_nibble} = operand1[3:0] - operand2[3:0];
 		end
 
@@ -97,13 +96,16 @@ always@(*) begin
 
 		// Compliment Operations
 		CMA: begin
-
+			result = ~operand1;
+			carry = 0; aux_carry = 0;
 		end
 		CMC: begin
-
+			carry = ~carry_in;
+			aux_carry = 0;
 		end
 		STC: begin
-
+			carry = 1'b1;
+			aux_carry = 0;
 		end
 		default: {result, flags} = 16'h0;
 	endcase
@@ -112,7 +114,7 @@ always@(*) begin
         else zero = 0;
         sign = result[7];
 	parity_even = ~(^result);
-	flags = {sign,zero,1'bx,aux_carry,1'bx,parity_even,1'bx,carry};
+	flags = {sign,zero,1'b0,aux_carry,1'b0,parity_even,1'b0,carry};
 end
 
 endmodule

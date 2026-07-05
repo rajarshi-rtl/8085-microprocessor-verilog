@@ -1,0 +1,139 @@
+$date
+	Sun Jul  5 16:55:05 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module alu_tb $end
+$var wire 8 ! result [7:0] $end
+$var wire 8 " flags [7:0] $end
+$var reg 5 # alu_opcode [4:0] $end
+$var reg 1 $ carry_in $end
+$var reg 8 % operand1 [7:0] $end
+$var reg 8 & operand2 [7:0] $end
+$scope module dut $end
+$var wire 5 ' alu_op [4:0] $end
+$var wire 1 $ carry_in $end
+$var wire 8 ( operand1 [7:0] $end
+$var wire 8 ) operand2 [7:0] $end
+$var parameter 5 * ADC $end
+$var parameter 5 + ADD $end
+$var parameter 5 , ANA $end
+$var parameter 5 - CMA $end
+$var parameter 5 . CMC $end
+$var parameter 5 / CMP $end
+$var parameter 5 0 DCR $end
+$var parameter 5 1 INR $end
+$var parameter 5 2 ORA $end
+$var parameter 5 3 RAL $end
+$var parameter 5 4 RAR $end
+$var parameter 5 5 RLC $end
+$var parameter 5 6 RRC $end
+$var parameter 5 7 SBB $end
+$var parameter 5 8 STC $end
+$var parameter 5 9 SUB $end
+$var parameter 5 : XRA $end
+$var reg 1 ; aux_carry $end
+$var reg 1 < carry $end
+$var reg 8 = flags [7:0] $end
+$var reg 1 > parity_even $end
+$var reg 8 ? result [7:0] $end
+$var reg 1 @ sign $end
+$var reg 4 A temp_nibble [3:0] $end
+$var reg 1 B zero $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b1000 :
+b10 9
+b10000 8
+b11 7
+b1011 6
+b1010 5
+b1101 4
+b1100 3
+b111 2
+b100 1
+b101 0
+b1001 /
+b1111 .
+b1110 -
+b110 ,
+b0 +
+b1 *
+$end
+#0
+$dumpvars
+0B
+b1010 A
+0@
+b11010 ?
+0>
+b0 =
+0<
+0;
+b10000 )
+b1010 (
+b0 '
+b10000 &
+b1010 %
+0$
+b0 #
+b0 "
+b11010 !
+$end
+#20000
+b100 "
+b100 =
+1>
+b1011 A
+b11011 !
+b11011 ?
+b1 #
+b1 '
+1$
+#40000
+1@
+b1010 A
+1<
+b10000101 "
+b10000101 =
+b11111010 !
+b11111010 ?
+b10 #
+b10 '
+#60000
+b1001 A
+1<
+b10000101 "
+b10000101 =
+b11111001 !
+b11111001 ?
+b11 #
+b11 '
+#80000
+0>
+0@
+b1011 A
+0<
+b0 "
+b0 =
+b1011 !
+b1011 ?
+b100 #
+b100 '
+#100000
+b100 "
+b100 =
+1>
+b1001 A
+b1001 !
+b1001 ?
+b101 #
+b101 '
+#120000
