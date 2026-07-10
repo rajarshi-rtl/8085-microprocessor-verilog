@@ -199,6 +199,108 @@ always@(*) begin
 		end
 
 		// Logical Group Instructions
+		8'b10100???: begin // ANA r
+			ins_encode = 6'd38;
+			reg_pair = 2'b00;
+			source_reg = {opcode[2:0]}; des_reg = 3'b111; 
+		end
+		8'b10100110: begin // ANA M
+			ins_encode = 6'd39;
+			reg_pair = 2'b10;
+			{des_reg, source_reg} = 6'b111111;
+		end
+		8'b11100110: begin // ANI data
+			ins_encode = 6'd40;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'd111111;
+		end
+		8'b10101???: begin // XRA r
+			ins_encode = 6'd41;
+			reg_pair = 2'b00;
+			source_reg = {opcode[2:0]}; des_reg = 3'b111;
+		end
+		8'b10101110: begin // XRA M
+			ins_encode = 6'd42;
+			reg_pair = 2'b10;
+			{des_reg, source_reg} = 6'b111111;
+		end
+		8'b11101110: begin // XRI data
+			ins_encode = 6'd43;
+			reg_pair = 2'b00;
+			{des_reg, source_reg} = 6'b111111;
+		end
+		8'b10110???: begin // ORA r
+			ins_encode = 6'd44;
+			reg_pair = 2'b00;
+			source_reg = {opcode[2:0]}; des_reg = 3'b111;
+		end
+		8'b10110110: begin // ORA M
+			ins_encode = 6'd45;
+			reg_pair = 2'b10;
+			{source_reg,des_reg} = 6'b111111;
+		end
+		8'b11110110: begin // ORI data
+			ins_encode = 6'd46;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'b111111;
+		end
+		8'b10111???: begin // CMP r
+			ins_encode = 6'd47;
+			reg_pair = 2'b00;
+			source_reg = {opcode[2:0]}; des_reg = 3'b000;
+		end
+		8'b10111110: begin // CMP M
+			ins_encode = 6'd48;
+			reg_pair = 2'b10;
+			{source_reg,des_reg} = 6'd0;
+		end
+		8'b11111110: begin // CPI data
+			ins_encode = 6'd49;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'b111000;
+		end
+		8'b00000111: begin // RLC
+			ins_encode = 6'd50;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'b111111;
+		end
+		8'b00001111: begin // RRC
+			ins_encode = 6'd51;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'b111111;
+		end
+		8'b00010111: begin // RAL
+			ins_encode = 6'd52;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'b111111;
+		end
+		8'b00011111: begin // RAR
+			ins_encode = 6'd53;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'b111111;
+		end
+		8'b00101111: begin // CMA
+			ins_encode = 6'd54;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'b111111;
+		end
+		8'b00111111: begin // CMC
+			ins_encode = 6'd55;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'd0;
+		end
+		8'b00110111: begin // STC
+			ins_encode = 6'd56;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'd0;
+		end
+
+		// Branch Group Instructions
+		8'b11000011: begin // JMP addr
+			ins_encode = 6'd57;
+			reg_pair = 2'b00;
+			{source_reg,des_reg} = 6'd0;
+		end
 
 	endcase	
 end
