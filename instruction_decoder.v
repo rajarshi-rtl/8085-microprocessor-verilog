@@ -112,7 +112,7 @@ always@(*) begin
 		8'b11100110: begin // ANI data
 			ins_encode = 7'd39;
 			reg_pair = 2'b00;
-			{source_reg,des_reg} = 6'd111111;
+			{source_reg,des_reg} = 6'b111111;
 		end
 		8'b10101110: begin // XRA M
 			ins_encode = 7'd41;
@@ -134,7 +134,7 @@ always@(*) begin
 			reg_pair = 2'b00;
 			{source_reg,des_reg} = 6'b111111;
 		end
-        8'b10111110: begin // CMP M
+        	8'b10111110: begin // CMP M
 			ins_encode = 7'd47;
 			reg_pair = 2'b10;
 			{source_reg,des_reg} = 6'd0;
@@ -184,73 +184,73 @@ always@(*) begin
 			reg_pair = 2'b00;
 			{source_reg,des_reg} = 6'd0;
 		end
-        8'b11001101: begin // CALL addr
-            ins_encode = 7'd57;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0;
-        end
-        8'b11001001: begin // RET
-            ins_encode = 7'd60;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0;            
-        end
-        8'b11110001: begin // POP PSW
-            ins_encode = 7'd63;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0;             
-        end
-        8'b11100011: begin // XTHL
-            ins_encode = 7'd64;
-            reg_pair = 2'b10;
-            {source_reg,des_reg} = 6'd0;
-        end
-        8'b11111001: begin // SPHL
-            ins_encode = 7'd65;
-            reg_pair = 2'b10;
-            {source_reg,des_reg} = 6'd0;            
-        end
-        8'b11011011: begin // IN port
-            ins_encode = 7'd66;
-            reg_pair = 2'b00; source_reg = 3'b000;
-            des_reg = 3'b111;
-        end
-        8'b11010011: begin // OUT port
-            ins_encode = 7'd67;
-            reg_pair = 2'b00; des_reg = 3'b000;
-            source_reg = 3'b111;            
-        end
-        8'b11111011: begin // EI (Enable Interrupt)
-            ins_encode = 7'd68;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0; 
-        end
-        8'b11110011: begin // DI (Disable Interrupt)
-            ins_encode = 7'd69;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0; 
-        end
-        8'b01110110: begin // HLT
-            ins_encode = 7'd70;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0; 
-        end
-        8'b00000000: begin // NOP (No Operation)
-            ins_encode = 7'd71;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0; 
-        end
-        8'b00100000: begin // RIM
-            ins_encode = 7'd72;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0; 
-        end
-        8'b00110000: begin // SIM
-            ins_encode = 7'd73;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0;        
-        end
+        	8'b11001101: begin // CALL addr
+            		ins_encode = 7'd57;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0;
+        	end
+        	8'b11001001: begin // RET
+            		ins_encode = 7'd60;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0;            
+        	end
+        	8'b11110001: begin // POP PSW
+            		ins_encode = 7'd63;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0;             
+        	end
+        	8'b11100011: begin // XTHL
+            		ins_encode = 7'd64;
+            		reg_pair = 2'b10;
+            		{source_reg,des_reg} = 6'd0;
+        	end
+        	8'b11111001: begin // SPHL
+            		ins_encode = 7'd65;
+            		reg_pair = 2'b10;
+            		{source_reg,des_reg} = 6'd0;            
+        	end
+        	8'b11011011: begin // IN port
+            		ins_encode = 7'd66;
+            		reg_pair = 2'b00; source_reg = 3'b000;
+            		des_reg = 3'b111;
+        	end
+        	8'b11010011: begin // OUT port
+            		ins_encode = 7'd67;
+            		reg_pair = 2'b00; des_reg = 3'b000;
+            		source_reg = 3'b111;            
+        	end
+        	8'b11111011: begin // EI (Enable Interrupt)
+            		ins_encode = 7'd68;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0; 
+        	end
+        	8'b11110011: begin // DI (Disable Interrupt)
+            		ins_encode = 7'd69;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0; 
+        	end
+        	8'b01110110: begin // HLT
+            		ins_encode = 7'd70;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0; 
+        	end
+        	8'b00000000: begin // NOP (No Operation)
+            		ins_encode = 7'd71;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0; 
+        	end
+        	8'b00100000: begin // RIM
+            		ins_encode = 7'd72;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0; 
+        	end
+        	8'b00110000: begin // SIM
+            		ins_encode = 7'd73;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0;        
+        	end
 
-        8'b00??0001: begin // LXI rp,data
+        	8'b00??0001: begin // LXI rp,data
 			ins_encode = 7'd5;
 			reg_pair = {opcode[5:4]};
 			{source_reg,des_reg} = 6'b000;
@@ -265,7 +265,7 @@ always@(*) begin
 			reg_pair = {opcode[5:4]};
 			{des_reg, source_reg} = 6'd0;
 		end
-        8'b11??0001: begin // POP rp
+        	8'b11??0001: begin // POP rp
 			ins_encode = 7'd14;
 			reg_pair = {opcode[5:4]};
 			{des_reg, source_reg} = 6'd0;
@@ -275,7 +275,7 @@ always@(*) begin
 			reg_pair = {opcode[5:4]};
 			{des_reg, source_reg} = 6'd0;
 		end
-        8'b00??0011: begin // INX rp
+        	8'b00??0011: begin // INX rp
 			ins_encode = 7'd33;
 			reg_pair = {opcode[5:4]};
 			{des_reg, source_reg} = 6'd0;
@@ -291,22 +291,22 @@ always@(*) begin
 			{des_reg, source_reg} = 6'd0;
 		end
 
-        8'b01110???: begin // MOV M,r
+        	8'b01110???: begin // MOV M,r
 			ins_encode = 7'd2;
 			source_reg = {opcode[2:0]}; des_reg = 3'b000;
 			reg_pair = 2'b10;
 		end
 		8'b01???110: begin // MOV r,M
-	        ins_encode = 7'd1;
-            source_reg = 3'b000; des_reg = {opcode[5:3]};
-            reg_pair = 2'b10;
+	        	ins_encode = 7'd1;
+            		source_reg = 3'b000; des_reg = {opcode[5:3]};
+            		reg_pair = 2'b10;
 		end
-        8'b00???110: begin // MVI r,data
+        	8'b00???110: begin // MVI r,data
 			ins_encode = 7'd3;
 			source_reg = 3'b000; des_reg = {opcode[5:3]};
 			reg_pair = 2'b00;
 		end
-        8'b10000???: begin // ADD r
+        	8'b10000???: begin // ADD r
 			ins_encode = 7'd17;
 			reg_pair = 2'b00;
 			source_reg = {opcode[2:0]}; des_reg = 3'b111;
@@ -356,38 +356,39 @@ always@(*) begin
 			reg_pair = 2'b00;
 			source_reg = {opcode[2:0]}; des_reg = 3'b000;
 		end
-        8'b11???010: begin // Jcondition addr
-            ins_encode = 7'd57;
-            reg_pair = 2'b00; des_reg = 3'b000;
-            source_reg = {opcode[5:3]}; // Using source register to store the condition
-        end
-        8'b11???100: begin // Ccondition addr
-            ins_encode = 7'd59;
-            reg_pair = 2'b00; des_reg = 3'b000;
-            source_reg = {opcode[5:3]}; // Using source register to store the condition
-        end
-        8'b11???000: begin // Rcondition
-            ins_encode = 7'd61;
-            reg_pair = 2'b00; des_reg = 3'b000;
-            source_reg = {opcode[5:3]}; // Using source register to store the condition
-        end
-        8'b11???111: begin // RST n
-            ins_encode = 7'd62;
-            reg_pair = 2'b00;
-            {source_reg,des_reg} = 6'd0;                
-        end
+        	8'b11???010: begin // Jcondition addr
+            		ins_encode = 7'd57;
+            		reg_pair = 2'b00; des_reg = 3'b000;
+            		source_reg = {opcode[5:3]}; // Using source register to store the condition
+        	end
+        	8'b11???100: begin // Ccondition addr
+            		ins_encode = 7'd59;
+            		reg_pair = 2'b00; des_reg = 3'b000;
+            		source_reg = {opcode[5:3]}; // Using source register to store the condition
+        	end
+        	8'b11???000: begin // Rcondition
+            		ins_encode = 7'd61;
+            		reg_pair = 2'b00; des_reg = 3'b000;
+            		source_reg = {opcode[5:3]}; // Using source register to store the condition
+        	end
+        	8'b11???111: begin // RST n
+            		ins_encode = 7'd62;
+            		reg_pair = 2'b00;
+            		{source_reg,des_reg} = 6'd0;                
+        	end
 
-        8'b01??????: begin // MOV r,r
-            ins_encode = 7'd0;
+        	8'b01??????: begin // MOV r,r
+            		ins_encode = 7'd0;
 			source_reg = {opcode[2:0]}; des_reg = {opcode[5:3]};
-            reg_pair = 2'b00;
+            		reg_pair = 2'b00;
 		end   
 
-        default: begin
-            ins_encode = 7'd127;
-            {source_reg,des_reg} = 6'd0;
-            reg_pair = 2'b00;
-        end
+        	default: begin
+            		ins_encode = 7'd127;
+            		{source_reg,des_reg} = 6'd0;
+            		reg_pair = 2'b00;
+        	end
+
 	endcase	
 end
 
