@@ -7,15 +7,11 @@ module program_counter(
 );
 
 always @ (posedge clk or posedge rst) begin
-	if (rst) begin
-		addr_out <= 16'h0000;
-	end
+	if (rst) addr_out <= 16'h0000;
 	else begin
 		if (pc_load) addr_out <= addr_in;
-		else if (pc_inc)
-			addr_out <= addr_out + 1;
+		else if (pc_inc) addr_out <= addr_out + 1;
 	end	
 end
-
 
 endmodule

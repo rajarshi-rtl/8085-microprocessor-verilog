@@ -5,11 +5,8 @@ module instruction_register(
 );
 
 always @ (posedge clk or posedge rst) begin
-	if (rst) begin
-		data_out <= 8'h0;
-	else begin
-		if (ir_load) data_out <= data_in;
-	end
+	if (rst) data_out <= 8'h0;
+	else if (ir_load) data_out <= data_in;
 end
 
 endmodule

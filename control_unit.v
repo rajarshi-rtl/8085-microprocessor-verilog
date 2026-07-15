@@ -3,16 +3,18 @@
 module control_unit(
 	input clk, rst,
 	input [6:0] encoded_ins,
-	output reg reg_read, reg_write, 
+	output reg ale,
+	output reg reg_write, 
 	output reg pc_inc, pc_load,
 	output reg sp_inc, sp_dec, sp_load,
 	output reg ir_load,
 	output reg rd_bar, wr_bar, io_m_bar,
-	output reg [1:0] addr_bus_sel,
+	output reg [2:0] addr_bus_sel,
 	output reg [4:0] alu_opcode,
 	output reg [7:0] flag_register_mask,
 	output reg w_load, z_load,
-	output reg [2:0] data_bus_sel
+	output reg [2:0] data_bus_sel,
+	output reg temp_enable
 );
 
 parameter RESET=5'd0, 
@@ -26,12 +28,11 @@ parameter RESET=5'd0,
 reg [4:0] present_state, next_state;
 
 // Present State Logic
-always @ (posedge clk or negedge rst) begin
-	if(!rst) begin
+always @ (posedge clk or posedge rst) begin
+	if(rst) begin
 		present_state <= RESET;
-		next_state <= OF_T1;
-		reg_read <= 1'b0; reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; 
-		ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0;
+		reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0; 
+		ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
 		alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; 
 	end
 	else present_state <= next_state;
@@ -40,47 +41,78 @@ end
 // Next State Logic
 always@(present_state or encoded_ins) begin
 	case(present_state)
+		RESET: begin
+        	        next_state <= OF_T1;
+	                reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+	                ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+	                alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
+		end
 		OF_T1: begin
 			next_state <= OF_T2;
-			reg_read <= 1'b0; reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0;
-			ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0;
-			alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;	
+			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
+			ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0; 
+			alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 3'b000; flag_register_mask <= 0;	
 		end
 		OF_T2: begin
 			next_state <= OF_T3;
-			reg_read <= 1'b0; reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0;
-			ir_load <= 1'b1; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0;
-			alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
+			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+			ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+			alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 3'b000; flag_register_mask <= 0;
 		end
 		OF_T3: begin
 			next_state <= OF_T4;
-			reg_read <= 1'b0; reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0;
-	                ir_load <= 1'b1; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0;
+			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+	                ir_load <= 1'b1; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
 	                alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
 		end
 		OF_T4: begin
 	                case(encoded_ins)
-				7'd17: next_state <= EXECUTE;
+				7'd3: next_state <= OP1_T1;
 			endcase
-                        reg_read <= 1'b0; reg_write <= 1'b0; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0;
-			ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0;
+                        reg_write <= 1'b0; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+			ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
                         alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
 		end
+		
+		OP1_T1: begin
+			next_state <= OP1_T2;
+                        reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
+                        ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+                        alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;			
+		end
 
+		OP1_T2: begin
+			next_state <= OP1_T3;
+                        reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+                        ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+                        alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0;
+		end
+
+		OP1_T3: begin
+                        reg_write <= 1'b1; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+                        ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+                        alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0;
+			case(encoded_ins)
+				7'd3: next_state <= OF_T1;
+			endcase
+		end
+
+		/*
 		EXECUTE: begin
 			case(encoded_ins)
-				7'd17: begin
-					reg_read <= 1'b1; reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0;
-		                        ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0;
+				7'd3: begin
+					reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+		                        ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
 		                        alu_opcode <= 5'd0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0;
 				end
 			endcase
 		end
+		*/
 
 		default: begin
 			next_state <= RESET;
-			reg_read <= 1'b0; reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0;
-			ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0;
+			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+			ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
 			alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
 		end
 	endcase
