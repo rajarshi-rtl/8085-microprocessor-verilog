@@ -3,6 +3,8 @@
 module control_unit(
 	input clk, rst,
 	input [6:0] encoded_ins,
+	input [2:0] source_reg, des_reg,
+	input [1:0] reg_pair,
 	output reg ale,
 	output reg reg_write, 
 	output reg pc_inc, pc_load,
@@ -14,7 +16,8 @@ module control_unit(
 	output reg [7:0] flag_register_mask,
 	output reg w_load, z_load,
 	output reg [2:0] data_bus_sel,
-	output reg temp_enable
+	output reg temp_enable,
+	output reg [2:0] reg_source, reg_des
 );
 
 parameter RESET=5'd0, 
@@ -25,6 +28,8 @@ parameter RESET=5'd0,
 	WB1_T1=5'd13, WB1_T2=5'd14, WB1_T3=5'd15, // Write 1 Fetch Cycle
 	WB2_T1=5'd16, WB2_T2=5'd17, WB2_T3=5'd18; // Write 2 Fetch Cycle
 
+localparam A = 3'b111, B = 3'b000, C = 3'b001, D = 3'b010, E = 3'b011, H = 3'b100, L = 3'b101;
+
 reg [4:0] present_state, next_state;
 
 // Present State Logic
@@ -33,7 +38,7 @@ always @ (posedge clk or posedge rst) begin
 		present_state <= RESET;
 		reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0; 
 		ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-		alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; 
+		alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 	end
 	else present_state <= next_state;
 end
@@ -45,74 +50,129 @@ always@(present_state or encoded_ins) begin
         	        next_state <= OF_T1;
 	                reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
 	                ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-	                alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
+	                alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 		end
+
+		// Opcode Fetch Cycles
 		OF_T1: begin
 			next_state <= OF_T2;
 			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
 			ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0; 
-			alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 3'b000; flag_register_mask <= 0;	
+			alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 3'b000; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 		end
 		OF_T2: begin
 			next_state <= OF_T3;
 			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
 			ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-			alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 3'b000; flag_register_mask <= 0;
+			alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 3'b000; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 		end
 		OF_T3: begin
 			next_state <= OF_T4;
 			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
 	                ir_load <= 1'b1; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-	                alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
+	                alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 		end
 		OF_T4: begin
 	                case(encoded_ins)
 				7'd3: next_state <= OP1_T1; // MVI r,data
 				7'd0: next_state <= EXECUTE1; // MOV r,r
 				7'd17: next_state <= EXECUTE1; // ADD r
+				7'd5: next_state <= OP1_T1; // LXI rp,data
 			endcase
                         reg_write <= 1'b0; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
 			ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-                        alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
+                        alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 		end
 		
+		// Operand 1 Fetch Cycle
 		OP1_T1: begin
 			next_state <= OP1_T2;
                         reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
                         ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-                        alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;			
+                        alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;	reg_source <= source_reg; reg_des <= des_reg;		
 		end
 
 		OP1_T2: begin
 			next_state <= OP1_T3;
                         reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
                         ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-                        alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0;
+                        alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 		end
 
 		OP1_T3: begin
-                        reg_write <= 1'b1; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
-                        ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-                        alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0;
+			case(encoded_ins)
+				7'd5: begin
+					reg_write <= 1'b1; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+                                        ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+                                        alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg;
+					case(reg_pair)
+						2'b00: reg_des <= C;
+						2'b01: reg_des <= E;
+						2'b10: reg_des <= L;
+					endcase
+				end
+				default: begin
+					reg_write <= 1'b1; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+					ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+					alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
+				end
+			endcase
+                      
 			case(encoded_ins)
 				7'd3: next_state <= OF_T1;
+				7'd5: next_state <= OP2_T1;
 			endcase
 		end
 
+		// Operand 2 Fetch Cycle
+		OP2_T1: begin
+                        next_state <= OP2_T2;
+			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
+			ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+			alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
+		end
+		OP2_T2: begin
+			next_state <= OP2_T3;
+			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b1;
+			ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+			alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
+		end
+		OP2_T3: begin
+			case(encoded_ins)
+				7'd5: begin
+					next_state <= OF_T1;;
+					reg_write <= 1'b1; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+					ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+					alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg;
+					case(reg_pair)
+						2'b00: reg_des <= B;
+						2'b01: reg_des <= D;
+						2'b10: reg_des <= H;
+					endcase
+				end
+				default: begin
+					next_state <= EXECUTE1;
+					reg_write <= 1'b1; pc_inc <= 1'b1; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
+					ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
+					alu_opcode <= 0; data_bus_sel <= 3'b000; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
+				end
+			endcase
+		end
 		
+		// Execution Cycle
 		EXECUTE1: begin
 			case(encoded_ins)
 				7'd0: begin // MVI r,data
 					next_state <= OF_T1;
 					reg_write <= 1'b1; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
 		                        ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-		                        alu_opcode <= 5'd0; data_bus_sel <= 3'b001; addr_bus_sel <= 0; flag_register_mask <= 0;
+		                        alu_opcode <= 5'd0; data_bus_sel <= 3'b001; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 				end
                                 7'd17: begin // ADD r
                                         next_state <= EXECUTE2;
                                         reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
                                         ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b1;
-                                        alu_opcode <= 5'd0; data_bus_sel <= 3'b001; addr_bus_sel <= 0; flag_register_mask <= 0;
+                                        alu_opcode <= 5'd0; data_bus_sel <= 3'b001; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 				end				
 			endcase
 		end
@@ -123,7 +183,7 @@ always@(present_state or encoded_ins) begin
 					 next_state <= OF_T1;
 					 reg_write <= 1'b1; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
  					 ir_load <= 1'b0; rd_bar <= 1'b1; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-                                         alu_opcode <= 5'd0; data_bus_sel <= 3'b010; addr_bus_sel <= 0; flag_register_mask <= 8'hFF;
+                                         alu_opcode <= 5'd0; data_bus_sel <= 3'b010; addr_bus_sel <= 0; flag_register_mask <= 8'hFF; reg_source <= source_reg; reg_des <= des_reg;
                                  end
 			 endcase
 		end
@@ -133,7 +193,7 @@ always@(present_state or encoded_ins) begin
 			next_state <= RESET;
 			reg_write <= 1'b0; pc_inc <= 1'b0; pc_load <= 1'b0; sp_inc <= 1'b0; sp_dec <= 1'b0; sp_load <= 1'b0; ale <= 1'b0;
 			ir_load <= 1'b0; rd_bar <= 1'b0; wr_bar <= 1'b1; io_m_bar <= 1'b0; w_load <= 1'b0; z_load <= 1'b0; temp_enable <= 1'b0;
-			alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0;
+			alu_opcode <= 0; data_bus_sel <= 0; addr_bus_sel <= 0; flag_register_mask <= 0; reg_source <= source_reg; reg_des <= des_reg;
 		end
 	endcase
 end

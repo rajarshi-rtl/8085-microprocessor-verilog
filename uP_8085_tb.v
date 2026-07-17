@@ -16,6 +16,9 @@ initial begin
 	memory[16'h0004] = 8'h78; // MOV A,B
 	memory[16'h0005] = 8'h81; // ADD C
 	memory[16'h0006] = 8'h4F; // MOV C,A
+	memory[16'h0007] = 8'h21; // LXI H, data 16
+	memory[16'h0008] = 8'h50;
+	memory[16'h0009] = 8'h20;
 end
 
 

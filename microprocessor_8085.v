@@ -35,15 +35,17 @@ wire [7:0] flag_register_mask;
 wire [7:0] ir_opcode; 
 wire [2:0] source_reg, des_reg; wire [1:0] reg_pair;
 wire [15:0] sp_addr, pc_addr, hl_addr, wz_addr, bc_addr, de_addr;
+wire [2:0] cu_src_reg, cu_des_reg;
 
 // Module instantiation
 // ALU
 alu Arithmetic_Logical_Unit(.operand1(operand1),.operand2(operand2),.alu_op(alu_opcode),.carry_in(carry_in),.flags(flags_in),.result(result));
 
 // Timing and Control Unit
-control_unit Timing_and_Control_Unit(.clk(clk),.rst(rst),.encoded_ins(encoded_ins),.reg_write(reg_write),
+control_unit Timing_and_Control_Unit(.clk(clk),.rst(rst),.encoded_ins(encoded_ins),.source_reg(source_reg),.des_reg(des_reg),.reg_pair(reg_pair),.reg_write(reg_write),
 	.pc_inc(pc_inc),.pc_load(pc_load),.sp_inc(sp_inc),.sp_dec(sp_dec),.sp_load(sp_load),.ir_load(ir_load),.rd_bar(rd_bar),.wr_bar(wr_bar),.io_m_bar(io_m_bar),.ale(ale),
-	.addr_bus_sel(addr_bus_sel),.alu_opcode(alu_opcode),.flag_register_mask(flag_register_mask),.w_load(w_load),.z_load(z_load),.data_bus_sel(data_bus_sel),.temp_enable(temp_enable));
+	.addr_bus_sel(addr_bus_sel),.alu_opcode(alu_opcode),.flag_register_mask(flag_register_mask),.w_load(w_load),.z_load(z_load),.data_bus_sel(data_bus_sel),.temp_enable(temp_enable),
+	.reg_source(cu_src_reg),.reg_des(cu_des_reg));
 
 // Flag Register
 flag_register Flag_Register(.flag_in(flags_in),.flag_mask(flag_register_mask),.clk(clk),.rst(rst),.flag_out(flags_out),.carry(carry_in));
@@ -58,7 +60,7 @@ instruction_register Instruction_Register(.data_in(data_bus),.ir_load(ir_load),.
 program_counter Program_Counter(.pc_load(pc_load),.pc_inc(pc_inc),.rst(rst),.clk(clk),.addr_in(address_bus),.addr_out(pc_addr));
 
 // Register File
-register Register(.clk(clk),.rst(rst),.reg_write(reg_write),.reg_sel_read(source_reg),.reg_sel_write(des_reg),
+register Register(.clk(clk),.rst(rst),.reg_write(reg_write),.reg_sel_read(cu_src_reg),.reg_sel_write(cu_des_reg),
 	.write_data(data_bus),.reg_data(data_reg),.bc_addr(bc_addr),.de_addr(de_addr),.hl_addr(hl_addr),.accumulator(operand1));
 
 // Stack Pointer
