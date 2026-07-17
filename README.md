@@ -7,8 +7,8 @@ RTL implementation of the **Intel 8085 microprocessor** in Verilog HDL. The proc
 # Instructions Supported
 | Category | Instructions |
 |----------|--------------|
-| Data Transfer | MOV r,r  MVI r,data  LXI rp,data 16 |
-| Arithmetic | ADD r |
+| **Data Transfer** | `MOV r,r` `MVI r,data` `LXI rp,data 16` |
+| **Arithmetic** | `ADD r` |
 
 ## Features
 - Moore FSM based Timing & Control Unit
