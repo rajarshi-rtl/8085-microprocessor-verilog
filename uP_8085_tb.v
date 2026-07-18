@@ -16,9 +16,16 @@ initial begin
 	memory[16'h0004] = 8'h78; // MOV A,B
 	memory[16'h0005] = 8'h81; // ADD C
 	memory[16'h0006] = 8'h4F; // MOV C,A
-	memory[16'h0007] = 8'h21; // LXI H, data 16
+	memory[16'h0007] = 8'h11; // LXI D, data 16
 	memory[16'h0008] = 8'h50;
 	memory[16'h0009] = 8'h20;
+	memory[16'h000A] = 8'h06; // MVI B,data
+	memory[16'h000B] = 8'h60; // data
+	memory[16'h000C] = 8'h90; // SUB B
+	memory[16'h000D] = 8'h1A; // LDAX D
+	memory[16'h000E] = 8'h76; // HLT
+
+	memory[16'h2050] = 8'h38; // data at memory location 2050H
 end
 
 
